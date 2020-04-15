@@ -31,6 +31,11 @@ namespace modules {
     m_pinworkspaces = m_conf.get(name(), "pin-workspaces", m_pinworkspaces);
     m_strip_wsnumbers = m_conf.get(name(), "strip-wsnumbers", m_strip_wsnumbers);
     m_fuzzy_match = m_conf.get(name(), "fuzzy-match", m_fuzzy_match);
+    m_metaworkspace_path = m_conf.get(name(), "metaworkspace-path", m_metaworkspace_path);
+
+    if (!file_util::exists(m_metaworkspace_path)) {
+      throw module_error("Could not find meataworkspace file: " + m_metaworkspace_path.empty());
+    }
 
     m_conf.warn_deprecated(name(), "wsname-maxlen", "%name:min:max%");
 
@@ -121,6 +126,11 @@ namespace modules {
     if (!m_formatter->has(TAG_LABEL_STATE)) {
       return true;
     }
+
+    if (file_util::exists(m_metaworkspace_path)) {
+      metaworkspace = file_util::contents(m_metaworkspace_path)[0];
+    }  
+
     m_workspaces.clear();
     i3_util::connection_t ipc;
 
@@ -168,7 +178,9 @@ namespace modules {
         label->replace_token("%name%", ws_name);
         label->replace_token("%icon%", icon->get());
         label->replace_token("%index%", to_string(ws->num));
-        m_workspaces.emplace_back(factory_util::unique<workspace>(ws->name, ws_state, move(label)));
+        if(ws->name[0] == metaworkspace) {
+          m_workspaces.emplace_back(factory_util::unique<workspace>(ws->name, ws_state, move(label)));
+        }
       }
 
       return true;

@@ -77,7 +77,7 @@ namespace modules {
 
     label_t m_modelabel;
     bool m_modeactive{false};
-
+    char metaworkspace;
     /**
      * Separator that is inserted in between workspaces
      */
@@ -91,6 +91,7 @@ namespace modules {
     bool m_pinworkspaces{false};
     bool m_strip_wsnumbers{false};
     bool m_fuzzy_match{false};
+    string m_metaworkspace_path{""};
 
     unique_ptr<i3_util::connection_t> m_ipc;
   };
